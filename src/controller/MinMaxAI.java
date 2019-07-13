@@ -87,6 +87,7 @@ public abstract class MinMaxAI extends Controller {
 	 * Return the move that maximizes the score according to the minimax
 	 * algorithm described above.
 	 */
+	
 	 /** <p>If it is the player's turn, then they will choose the action that
 	 * maximizes their score, so the score for g is the maximum of all the scores
 	 * of the g's.  However, if it is the opponent's turn, then the opponent will
@@ -116,6 +117,51 @@ public abstract class MinMaxAI extends Controller {
 	 * consider, while the abstract method {@link #estimate(Board)} returns
 	 * the estimation of how good the board is for the given player.
 	 */
+	/**
+	 * A particular line of 5 adjacent cells is "winnable" for player p if
+	 * it does not contain any of the opponent's marks.
+	 * 
+	 * <p>We measure goodness by counting the number of winnable lines, and
+	 * scoring them based on the number of the player's marks as follows:
+	 * 
+	 * <table><tr><th> Number of marks </th> <th>  Score    </th></tr>
+	 *        <tr><td>     0           </td> <td>  0        </td></tr>
+	 *        <tr><td>     1           </td> <td>  1        </td></tr>
+	 *        <tr><td>     2           </td> <td>  10       </td></tr>
+	 *        <tr><td>     3           </td> <td>  100      </td></tr>
+	 *        <tr><td>     4           </td> <td>  1000     </td></tr>
+	 *        <tr><td>     5           </td> <td>  10000    </td></tr>
+	 * </table>
+	 *
+	 * <p>Note that overlapping segments will be counted multiple times, so
+	 * that, for example, the following board:
+	 * <pre> 
+	 *       O O
+	 *       OXO
+	 *       O O
+	 * </pre>
+	 * will count as 5 points for X, since there are 5 vertical line segments
+	 * passing through X, while
+	 * <pre>
+	 *       OOO
+	 *       OXO
+	 *       O O
+	 * </pre>
+	 * will only count for 1 point, since only the line segment proceeding down
+	 * from X is winnable.
+	 * 
+	 * The estimate is the difference between the player's score and his
+	 * opponent's
+	 */
+	
+	private int getScore(Location l, Game g) {
+		
+		
+		
+		//temporary placeholder
+		return 0;
+	}
+	
 	protected @Override Location nextMove(Game g) {
 		// TODO Auto-generated method stub
 		//throw new NotImplementedException();
@@ -132,7 +178,48 @@ public abstract class MinMaxAI extends Controller {
 			//propose a move
 			//calculate score
 			//get the maximized score for you, and minimized score for opponent
+			//recursive step
 			//then call nextMove with the updated game G
+			
+			
+			//use moves and estimate
+			/**
+			 * Return an estimate of how good the given board is for me.
+			 * A result of infinity means I have won.  A result of negative infinity
+			 * means that I have lost.
+			 */
+			//protected abstract int estimate(Board b);
+			
+			/**
+			 * Return the set of moves that the AI will consider when planning ahead.
+			 * Must contain at least one move if there are any valid moves to make.
+			 */
+			//protected abstract Iterable<Location> moves(Board b);
+			
+			Board currentBoard = g.getBoard();
+			
+			Iterable<Location> possibleMoves = moves(currentBoard);
+			Iterator<Location> moveIterator = possibleMoves.iterator();
+			Location optimumLocation = null;
+			int highestScore = 0;
+			
+			while(moveIterator.hasNext()) {
+				Location nextMove = moveIterator.next();
+				Board withMove = currentBoard.update(this.me, nextMove);
+				int boardScore = estimate(withMove);
+				
+				//need a way to minimize opponent score
+				
+				if(boardScore > highestScore) {
+					highestScore = boardScore;
+					optimumLocation = nextMove;
+				}
+			}
+			
+			Board withBestNextMove = currentBoard.update(this.me, optimumLocation);
+			
+			//make a new game with the new board
+			
 			
 		}
 		
