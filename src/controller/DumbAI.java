@@ -15,9 +15,7 @@ public class DumbAI extends Controller {
 	public DumbAI(Player me) {
 		super(me);
 		// TODO Auto-generated constructor stub
-		//throw new NotImplementedException();
-		
-		
+		//throw new NotImplementedException();	
 	}
 
 	/**
@@ -37,13 +35,14 @@ public class DumbAI extends Controller {
 		int emptyCol = -1;
 		
 		Board currentBoard = g.getBoard();
-				
+		
+		rowIteration:	
 		for(int r = 0; r < 9; r += 1) {
 			for(int c = 0; c < 9; c += 1) {
 				if(currentBoard.get(r, c) == null) {
 					emptyRow = r;
 					emptyCol = c;
-					break;
+					break rowIteration;
 				}
 			}
 		}

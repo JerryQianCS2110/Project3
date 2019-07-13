@@ -1,7 +1,7 @@
 package controller;
 
 import org.eclipse.jdt.annotation.NonNull;
-
+import model.Victory;
 import model.Board;
 import model.Board.State;
 import model.Game;
@@ -80,15 +80,89 @@ public abstract class MinMaxAI extends Controller {
 	protected MinMaxAI(Player me, int depth) {
 		super(me);
 		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		//throw new NotImplementedException();
 	}
-
+	
 	/**
 	 * Return the move that maximizes the score according to the minimax
 	 * algorithm described above.
 	 */
+	 /** <p>If it is the player's turn, then they will choose the action that
+	 * maximizes their score, so the score for g is the maximum of all the scores
+	 * of the g's.  However, if it is the opponent's turn, then the opponent will
+	 * try to minimize the score for the player, so the score for g is the
+	 * <em>minimum</em> of all of the scores of the g'.
+	 * 
+	 * <p>You can think of the game as defining a tree, where each node in the tree
+	 * represents a game configuration, and the children of g are all of the g'
+	 * reachable from g by taking a turn.  The minimax algorithm is then a
+	 * particular traversal of this tree.
+	 * 
+	 * <p>In practice, game trees can become very large, so we apply a few
+	 * strategies to narrow the set of paths that we search.  First, we can decide
+	 * to only consider certain kinds of moves.  For five-in-a-row, there are
+	 * typically at least 70 moves available at each step; but it's (usually) not
+	 * sensible to go on the opposite side of the board from where all of the other
+	 * pieces are; by restricting our search to only part of the board, we can
+	 * reduce the space considerably.
+	 * 
+	 * <p>A second strategy is that we can look only a few moves ahead instead of
+	 * planning all the way to the end of the game.  This requires us to be able to
+	 * estimate how "good" a given board looks for a player.
+	 * 
+	 * <p>This class implements the minimax algorithm with support for these two
+	 * strategies for reducing the search space.  The abstract method {@link
+	 * #moves(Board)} is used to list all of the moves that the AI is willing to
+	 * consider, while the abstract method {@link #estimate(Board)} returns
+	 * the estimation of how good the board is for the given player.
+	 */
 	protected @Override Location nextMove(Game g) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		//throw new NotImplementedException();
+		
+		int score = 0;
+		
+		if(gameEnded(g) == "playerWin")             //player wins
+			score = 99999999; 						//essentially infinity
+		else if(gameEnded(g) == "playerNotWin")     //player doesn't win
+			score = -999999999; 					//essentially negative infinity
+		else if(gameEnded(g) == "draw")             //draw
+			score = 0;
+		else {
+			//propose a move
+			//calculate score
+			//get the maximized score for you, and minimized score for opponent
+			//then call nextMove with the updated game G
+			
+		}
+		
+		
+		
+		//temporary placeholder
+		return null;
+	}
+	
+	/**
+	 * Another way to check whether the game ended
+	 * @param g
+	 * @return
+	 */
+	private String gameEnded(Game g) {
+		Board b = g.getBoard();
+
+		State gameState = b.getState();
+		
+		if(gameState == State.HAS_WINNER) {
+			Victory winPerson = b.getWinner();
+			Player winner = winPerson.winner;
+			if(winner == this.me)
+				return "playerWin";
+			else
+				return "playerNotWin";
+		}else if(gameState == State.DRAW) {
+			return "draw";
+		} else {
+			return "notOver";
+		}
 	}
 }
