@@ -9,6 +9,7 @@ import model.Location;
 import model.NotImplementedException;
 import model.Player;
 
+import java.util.Iterator;
 /**
  * A MinMaxAI is a controller that uses the minimax algorithm to select the next
  * move.  The minimax algorithm searches for the best possible next move, under
@@ -56,6 +57,8 @@ import model.Player;
  */
 public abstract class MinMaxAI extends Controller {
 
+	private int depth;
+	
 	/**
 	 * Return an estimate of how good the given board is for me.
 	 * A result of infinity means I have won.  A result of negative infinity
@@ -81,6 +84,8 @@ public abstract class MinMaxAI extends Controller {
 		super(me);
 		// TODO Auto-generated method stub
 		//throw new NotImplementedException();
+		
+		this.depth = depth;
 	}
 	
 	/**
@@ -153,35 +158,29 @@ public abstract class MinMaxAI extends Controller {
 	 * The estimate is the difference between the player's score and his
 	 * opponent's
 	 */
-	
-	private int getScore(Location l, Game g) {
-		
-		
-		
-		//temporary placeholder
-		return 0;
-	}
-	
+
 	protected @Override Location nextMove(Game g) {
 		// TODO Auto-generated method stub
 		//throw new NotImplementedException();
 		
+		
+		delay();delay();delay();delay();delay();delay();delay();delay();delay();delay();
+		
 		int score = 0;
 		
-		if(gameEnded(g) == "playerWin")             //player wins
-			score = 99999999; 						//essentially infinity
-		else if(gameEnded(g) == "playerNotWin")     //player doesn't win
-			score = -999999999; 					//essentially negative infinity
-		else if(gameEnded(g) == "draw")             //draw
+		if(gameEnded(g) == "playerWin") {             //player wins
+			score = 99999999; 						  //essentially infinity
+			return null;
+		}
+		else if(gameEnded(g) == "playerNotWin") {     //player doesn't win
+			score = -999999999; 					  //essentially negative infinity
+			return null;
+		}
+		else if(gameEnded(g) == "draw") {             //draw
 			score = 0;
+			return null;
+		}
 		else {
-			//propose a move
-			//calculate score
-			//get the maximized score for you, and minimized score for opponent
-			//recursive step
-			//then call nextMove with the updated game G
-			
-			
 			//use moves and estimate
 			/**
 			 * Return an estimate of how good the given board is for me.
@@ -196,43 +195,104 @@ public abstract class MinMaxAI extends Controller {
 			 */
 			//protected abstract Iterable<Location> moves(Board b);
 			
-			Board currentBoard = g.getBoard();
 			
-			Iterable<Location> possibleMoves = moves(currentBoard);
+			//for loop from 0 to depth, just the same one as declared in constructor. Can access by this.depth
+						
+			//System.out.println(moves(g.getBoard()));
+			
+			//assuming opponent moves like you
+			Board current = g.getBoard();
+			//need a find a way to recurse throw the multiple depths
+			//for(int i = 0; i < this.depth; i++) {
+			Iterable<Location> possibleMoves = moves(current);
 			Iterator<Location> moveIterator = possibleMoves.iterator();
-			Location optimumLocation = null;
-			int highestScore = 0;
-			
-			while(moveIterator.hasNext()) {
-				Location nextMove = moveIterator.next();
-				Board withMove = currentBoard.update(this.me, nextMove);
-				int boardScore = estimate(withMove);
+			Location firstMove = null;
+			if(moveIterator.hasNext())
+				firstMove = moveIterator.next();
 				
-				//need a way to minimize opponent score
-				
-				if(boardScore > highestScore) {
-					highestScore = boardScore;
-					optimumLocation = nextMove;
-				}
-			}
+			current = current.update(this.me, firstMove);
+
+			//best move at depth d
+			Location goodMove = getBestMove(g.nextTurn(), current, firstMove, this.depth - 1);
 			
-			Board withBestNextMove = currentBoard.update(this.me, optimumLocation);
-			
-			//make a new game with the new board
-			
-			
+			return goodMove;
 		}
-		
-		
-		
-		//temporary placeholder
-		return null;
 	}
 	
+	private Location getBestMove(Player p, Board b, Location l, int d) {
+		if(d == 0) {
+			return null;
+		} else if(d == 1) {
+			return l;
+		} else {
+			Board current = b;
+			Iterable<Location> possibleMoves = moves(current);
+			Iterator<Location> moveIterator = possibleMoves.iterator();
+			Location optimumLocation = null;
+			
+			Player lastMove = this.me;
+			
+			int scoreDifference = 0;
+			
+			while(moveIterator.hasNext()) {
+				Location possibleNext = moveIterator.next();
+				Board withMove = current.update(this.me, possibleNext);
+				int yourScore = estimate(withMove);
+				
+				Iterable<Location> oppMovesIter = moves(withMove);
+				Iterator<Location> oppIter = oppMovesIter.iterator();
+				//System.out.println("got here");
+				
+				while(oppIter.hasNext()) {
+					Location possibleOppNext = oppIter.next();
+					Board withOppMove = withMove.update(this.me.opponent(), possibleOppNext);
+						
+					int oppScore = estimate(withOppMove);
+						
+					int tempScoreDiff = yourScore - oppScore;
+					//System.out.println("your score: " + yourScore);
+					//System.out.println("opp score: " + oppScore);
+						
+					if(tempScoreDiff > scoreDifference) {
+						scoreDifference = tempScoreDiff;
+						if(p == this.me) {
+							optimumLocation = possibleNext;
+							p = this.me.opponent();
+						}
+						else {
+							optimumLocation = possibleOppNext;
+							p = this.me;
+						}
+					}
+				}
+				//System.out.println("optimum location: " +optimumLocation);
+			}
+			return getBestMove(p, b.update(p, optimumLocation), optimumLocation, d - 1);
+		}
+	}
+
+	
+	/*private Location bestMove(Player p, Board b, int d) {
+		int difference = 0;
+		
+		if(d == 0) {
+			return null;
+		} else{
+			Iterable<Location> possibleMoves = moves(b);
+			Iterator<Location> moveIterator = possibleMoves.iterator();
+			
+			if(moveIterator.hasNext())
+				return moveIterator.next();
+			else
+				return null;
+			
+			//want to get the leaf with the greatest difference, then find the root of that leaf
+		}
+	}*/
 	/**
 	 * Another way to check whether the game ended
-	 * @param g
-	 * @return
+	 * @param g The game
+	 * @return A string determining the state of the game
 	 */
 	private String gameEnded(Game g) {
 		Board b = g.getBoard();
