@@ -9,6 +9,7 @@ import model.Location;
 import model.NotImplementedException;
 import model.Player;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 /**
  * A MinMaxAI is a controller that uses the minimax algorithm to select the next
@@ -158,13 +159,97 @@ public abstract class MinMaxAI extends Controller {
 	 * The estimate is the difference between the player's score and his
 	 * opponent's
 	 */
-
+	
 	protected @Override Location nextMove(Game g) {
+		throw new NotImplementedException();
+		
+		// TODO Auto-generated method stub
+		Board current = g.getBoard();
+		Iterable<Location> moveIterable = moves(current);
+		Iterator<Location> moveIterator = moveIterable.iterator();
+		
+		
+		
+		//creation of tree
+		ArrayList<locationNode> roots = new ArrayList<locationNode>();
+		
+		//need to change the scoring system to then be difference between the two
+		
+		//making the roots
+		while(moveIterator.hasNext()) {
+			Location nm = moveIterator.next();
+			int score = estimate(current.update(g.nextTurn(), nm));
+			locationNode n = new locationNode(null, nm, null, score);
+			roots.add(n);
+		}
+		
+		for(int i = 1; i < this.depth; i++) {
+			//adding each successive possible move to each node
+			//shouldn't be in roots, should be in the next.	
+			for(int j = 0; j < roots.size(); j++) {
+				locationNode curr = roots.get(j);
+				Board updatedBoard = current.update(g.nextTurn(), curr.getData());
+				
+				Iterable<Location> nextMoves = moves(updatedBoard);
+				Iterator<Location> nextMovesIter = nextMoves.iterator();
+				
+				ArrayList<locationNode> succNodes = new ArrayList<locationNode>();
+				while(nextMovesIter.hasNext()) {
+					Location nxt = nextMovesIter.next();
+					int score = estimate(updatedBoard.update(g.nextTurn(), nxt));
+					succNodes.add(new locationNode(curr, nxt, null, java.lang.Math.max(score, curr.getScore())));
+				}
+				
+				curr.setSubNodes(succNodes);
+			}
+		}
+		
+		
+	
+	}
+	
+	//constructing the tree
+	public void getNextDepthLayer(int current, locationNode ln, Board b) {
+		
+		if(depth != 0) {
+			locationNode currentln = ln;
+			Iterable<Location> moves = moves(b);
+			Iterator<Location> moveIter = moves.iterator();
+			
+			
+		}
+	}
+	
+	private class locationNode {
+		private locationNode parent;				//null if root
+		private Location data;
+		private ArrayList<locationNode> subNodes;
+		private int score;
+		
+		public locationNode(locationNode parent, Location d, ArrayList<locationNode> sn, int sc) {
+			this.parent = parent;
+			this.data = d;
+			this.subNodes = sn;
+			this.score = sc;
+		}
+		
+		public locationNode getParent() { return this.parent; }
+		
+		public void setSubNodes(ArrayList<locationNode> sn) { this.subNodes = sn;};
+		
+		public Location getData() { return this.data; }
+		
+		public int getScore() { return this.score; }
+		
+		public void setScore(int s) { this.score = s; }
+	
+	}
+	/*protected @Override Location nextMove(Game g) {
 		// TODO Auto-generated method stub
 		//throw new NotImplementedException();
 		
 		
-		delay();delay();delay();delay();delay();delay();delay();delay();delay();delay();
+		/*delay();delay();delay();delay();delay();delay();delay();delay();delay();delay();
 		
 		int score = 0;
 		
@@ -180,7 +265,7 @@ public abstract class MinMaxAI extends Controller {
 			score = 0;
 			return null;
 		}
-		else {
+		else {*/
 			//use moves and estimate
 			/**
 			 * Return an estimate of how good the given board is for me.
@@ -201,7 +286,7 @@ public abstract class MinMaxAI extends Controller {
 			//System.out.println(moves(g.getBoard()));
 			
 			//assuming opponent moves like you
-			Board current = g.getBoard();
+			/*Board current = g.getBoard();
 			//need a find a way to recurse throw the multiple depths
 			//for(int i = 0; i < this.depth; i++) {
 			Iterable<Location> possibleMoves = moves(current);
@@ -216,10 +301,10 @@ public abstract class MinMaxAI extends Controller {
 			Location goodMove = getBestMove(g.nextTurn(), current, firstMove, this.depth - 1);
 			
 			return goodMove;
-		}
-	}
+		}*/
+	//}
 	
-	private Location getBestMove(Player p, Board b, Location l, int d) {
+	/*private Location getBestMove(Player p, Board b, Location l, int d) {
 		if(d == 0) {
 			return null;
 		} else if(d == 1) {
@@ -272,29 +357,29 @@ public abstract class MinMaxAI extends Controller {
 	}
 
 	
-	/*private Location bestMove(Player p, Board b, int d) {
-		int difference = 0;
-		
+	private Location bestLocAtDepth(Player p, Board b, int d) {		
 		if(d == 0) {
 			return null;
 		} else{
 			Iterable<Location> possibleMoves = moves(b);
 			Iterator<Location> moveIterator = possibleMoves.iterator();
 			
-			if(moveIterator.hasNext())
-				return moveIterator.next();
-			else
-				return null;
-			
-			//want to get the leaf with the greatest difference, then find the root of that leaf
+			while(moveIterator.hasNext()) {
+				Location nextPossMove = moveIterator.next();
+				Board adjusted =  b.update(p, nextPossMove);
+				return bestLocAtDepth(p.opponent(), adjusted, d - 1);
+			}
 		}
 	}*/
+	
+	
+	
 	/**
 	 * Another way to check whether the game ended
 	 * @param g The game
 	 * @return A string determining the state of the game
 	 */
-	private String gameEnded(Game g) {
+	/*private String gameEnded(Game g) {
 		Board b = g.getBoard();
 
 		State gameState = b.getState();
@@ -311,5 +396,5 @@ public abstract class MinMaxAI extends Controller {
 		} else {
 			return "notOver";
 		}
-	}
+	}*/
 }
