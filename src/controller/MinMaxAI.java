@@ -161,8 +161,9 @@ public abstract class MinMaxAI extends Controller {
 	 */
 	
 	protected @Override Location nextMove(Game g) {
-		throw new NotImplementedException();
-		
+		System.out.println("in next move");
+		//throw new NotImplementedException();
+		//code block
 		// TODO Auto-generated method stub
 		Board current = g.getBoard();
 		Iterable<Location> moveIterable = moves(current);
@@ -198,12 +199,19 @@ public abstract class MinMaxAI extends Controller {
 				ArrayList<locationNode> succNodes = new ArrayList<locationNode>();
 				while(nextMovesIter.hasNext()) {
 					Location nxt = nextMovesIter.next();
-					int yourScore = estimate(updatedBoard.update(g.nextTurn(), nxt));
 					
-					//int oppScore = estimate()
+					int yourScore = 0;
+					int oppScore = 0;
+					
+					try {
+						yourScore = estimate(updatedBoard.update(g.nextTurn(), nxt));
+						oppScore = estimate(updatedBoard.update(g.nextTurn().opponent(), nxt));
+					} catch(IllegalStateException e) {
+						yourScore = 999999999;
+					}
 					
 					
-					int score = yourScore;//Math.abs(yourScore - oppScore);
+					int score = Math.abs(yourScore - oppScore);
 					succNodes.add(new locationNode(curr, nxt, null, java.lang.Math.max(score, curr.getScore())));
 					
 					if(i == this.depth - 1) {
@@ -214,7 +222,7 @@ public abstract class MinMaxAI extends Controller {
 				curr.setSubNodes(succNodes);
 			}
 		}
-		
+		System.out.println(roots);
 		//look through all the leaves and find the one with the biggest score
 		//then return the root of that specific leaf
 		int maxScore = 0;
@@ -228,11 +236,16 @@ public abstract class MinMaxAI extends Controller {
 			}
 		}
 		
-		locationNode nextMoveNode = maxScoreLocNode;
-		for(int i = 0; i < this.depth; i++) {
-			nextMoveNode = nextMoveNode.getParent();
-		}
+		//System.out.println(maxScoreLocNode.getData());
+		//System.out.println(leaves.size());
 		
+		locationNode nextMoveNode = maxScoreLocNode;
+		while(nextMoveNode.getParent() != null)
+			nextMoveNode = nextMoveNode.getParent();
+		
+		//System.out.println(nextMoveNode.getData());
+		//delay();delay();delay();delay();delay();delay();delay();delay();delay();delay();
+		System.out.println("at end of next move");
 		return nextMoveNode.getData();
 	
 	}
@@ -261,6 +274,8 @@ public abstract class MinMaxAI extends Controller {
 		public int getScore() { return this.score; }
 		
 		public void setScore(int s) { this.score = s; }
+		
+		public String toString() { return this.data.toString() + " sc: " + this.score; }
 	
 	}
 	/*protected @Override Location nextMove(Game g) {
