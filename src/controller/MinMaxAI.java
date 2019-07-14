@@ -183,6 +183,8 @@ public abstract class MinMaxAI extends Controller {
 			roots.add(n);
 		}
 		
+		ArrayList<locationNode> leaves = new ArrayList<locationNode>();
+		
 		for(int i = 1; i < this.depth; i++) {
 			//adding each successive possible move to each node
 			//shouldn't be in roots, should be in the next.	
@@ -196,30 +198,45 @@ public abstract class MinMaxAI extends Controller {
 				ArrayList<locationNode> succNodes = new ArrayList<locationNode>();
 				while(nextMovesIter.hasNext()) {
 					Location nxt = nextMovesIter.next();
-					int score = estimate(updatedBoard.update(g.nextTurn(), nxt));
+					int yourScore = estimate(updatedBoard.update(g.nextTurn(), nxt));
+					
+					//int oppScore = estimate()
+					
+					
+					int score = yourScore;//Math.abs(yourScore - oppScore);
 					succNodes.add(new locationNode(curr, nxt, null, java.lang.Math.max(score, curr.getScore())));
+					
+					if(i == this.depth - 1) {
+						leaves.add(new locationNode(curr, nxt, null, java.lang.Math.max(score, curr.getScore())));
+					}
 				}
 				
 				curr.setSubNodes(succNodes);
 			}
 		}
 		
+		//look through all the leaves and find the one with the biggest score
+		//then return the root of that specific leaf
+		int maxScore = 0;
+		locationNode maxScoreLocNode = null;
 		
-	
-	}
-	
-	//constructing the tree
-	public void getNextDepthLayer(int current, locationNode ln, Board b) {
-		
-		if(depth != 0) {
-			locationNode currentln = ln;
-			Iterable<Location> moves = moves(b);
-			Iterator<Location> moveIter = moves.iterator();
-			
-			
+		for(int i = 0; i < leaves.size(); i++) {
+			locationNode currentLeaf = leaves.get(i);
+			if(currentLeaf.getScore() > maxScore) {
+				maxScore = currentLeaf.getScore();
+				maxScoreLocNode = currentLeaf;
+			}
 		}
-	}
+		
+		locationNode nextMoveNode = maxScoreLocNode;
+		for(int i = 0; i < this.depth; i++) {
+			nextMoveNode = nextMoveNode.getParent();
+		}
+		
+		return nextMoveNode.getData();
 	
+	}
+		
 	private class locationNode {
 		private locationNode parent;				//null if root
 		private Location data;
@@ -235,7 +252,9 @@ public abstract class MinMaxAI extends Controller {
 		
 		public locationNode getParent() { return this.parent; }
 		
-		public void setSubNodes(ArrayList<locationNode> sn) { this.subNodes = sn;};
+		public void setSubNodes(ArrayList<locationNode> sn) { this.subNodes = sn;}
+		
+		public ArrayList<locationNode> getSubNodes() { return this.subNodes; }
 		
 		public Location getData() { return this.data; }
 		
