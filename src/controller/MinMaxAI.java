@@ -162,6 +162,7 @@ public abstract class MinMaxAI extends Controller {
 	
 	protected @Override Location nextMove(Game g) {
 		System.out.println("in next move");
+		//delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
 		//throw new NotImplementedException();
 		//code block
 		// TODO Auto-generated method stub
@@ -209,6 +210,7 @@ public abstract class MinMaxAI extends Controller {
 					} catch(IllegalStateException e) {
 						yourScore = 999999999;
 					}
+					
 					
 					
 					int score = Math.abs(yourScore - oppScore);

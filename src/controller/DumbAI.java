@@ -26,6 +26,7 @@ public class DumbAI extends Controller {
 	 */
 	protected @Override Location nextMove(Game g) {
 		// Note: Calling delay here will make the CLUI work a little more
+		//delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
 		// nicely when competing different AIs against each other.
 		
 		// TODO Auto-generated method stub
