@@ -161,8 +161,21 @@ public abstract class MinMaxAI extends Controller {
 	 */
 	
 	protected @Override Location nextMove(Game g) {
+		Board current = g.getBoard();
+		Iterable<Location> iterableMoves = moves(current);
+		Iterator<Location> movesIter = iterableMoves.iterator();
+		
+		while(movesIter.hasNext()) {
+			//recursive call, and pass in movesIter.next();
+		}
+	}
+	
+
+	
+	
+	/*protected @Override Location nextMove(Game g) {
 		System.out.println("in next move");
-		//delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
+		delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
 		//throw new NotImplementedException();
 		//code block
 		// TODO Auto-generated method stub
@@ -211,7 +224,9 @@ public abstract class MinMaxAI extends Controller {
 						yourScore = 999999999;
 					}
 					
-					
+					//one depth is one move, not one cycle???
+					//write some tests
+					//set up some boards, get score of move, make sure next move is the correct next move.
 					
 					int score = Math.abs(yourScore - oppScore);
 					succNodes.add(new locationNode(curr, nxt, null, java.lang.Math.max(score, curr.getScore())));
@@ -250,9 +265,9 @@ public abstract class MinMaxAI extends Controller {
 		System.out.println("at end of next move");
 		return nextMoveNode.getData();
 	
-	}
+	}*/
 		
-	private class locationNode {
+	/*private class locationNode {
 		private locationNode parent;				//null if root
 		private Location data;
 		private ArrayList<locationNode> subNodes;
@@ -279,7 +294,7 @@ public abstract class MinMaxAI extends Controller {
 		
 		public String toString() { return this.data.toString() + " sc: " + this.score; }
 	
-	}
+	}*/
 	/*protected @Override Location nextMove(Game g) {
 		// TODO Auto-generated method stub
 		//throw new NotImplementedException();
