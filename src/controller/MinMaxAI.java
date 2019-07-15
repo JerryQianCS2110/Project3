@@ -160,16 +160,65 @@ public abstract class MinMaxAI extends Controller {
 	 * opponent's
 	 */
 	
-	protected @Override Location nextMove(Game g) {
+	protected @Override Location nextMove(Game g) {		
 		Board current = g.getBoard();
 		Iterable<Location> iterableMoves = moves(current);
 		Iterator<Location> movesIter = iterableMoves.iterator();
 		
+		int scoreMaxSoFar = -99999999; //essentially negative infinity
+		Location optimalMove = null;
 		while(movesIter.hasNext()) {
 			//recursive call, and pass in movesIter.next();
+			Location nxt = movesIter.next();
+			int currentScore = moveScore(nxt, this.depth - 1, current, this.me);
+			//System.out.println("Loc: " + nxt + " sc: " + currentScore);
+			if(currentScore > scoreMaxSoFar) {
+				scoreMaxSoFar = currentScore;
+				optimalMove = nxt;
+			}
 		}
+		return optimalMove;
 	}
 	
+	private int moveScore(Location l, int depth, Board b, Player p) {
+		try {
+			Board withMove = b.update(p, l);
+			int yourScore = estimate(withMove);
+			
+			//base case
+			if(depth == 0)
+				return yourScore;
+			
+			
+			
+			int maxSoFar = 0;
+			Iterable<Location> iterble = moves(withMove);
+			Iterator<Location> moveIter = iterble.iterator();
+			
+			while(moveIter.hasNext()) {
+				maxSoFar = moveScore(moveIter.next(), depth - 1, withMove, p.opponent());
+				
+				if(p.equals(me)) {
+					if(maxSoFar > yourScore) {
+						yourScore = maxSoFar;
+					}
+				} else {
+					if(maxSoFar < yourScore) {
+						yourScore = maxSoFar;
+					}
+				}
+			}
+			//System.out.println(maxSoFar);
+			return maxSoFar;
+		} catch(IllegalStateException e) {
+			if(p.equals(this.me)) {
+				//p is trying to play after a win, so p is loss
+				return -9999999;
+			} else {
+				return 9999999;
+			}
+		}
+	}
 
 	
 	
