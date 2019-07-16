@@ -92,95 +92,9 @@ public abstract class MinMaxAI extends Controller {
 	/**
 	 * Return the move that maximizes the score according to the minimax
 	 * algorithm described above.
-	 */
-	
-	 /** <p>If it is the player's turn, then they will choose the action that
-	 * maximizes their score, so the score for g is the maximum of all the scores
-	 * of the g's.  However, if it is the opponent's turn, then the opponent will
-	 * try to minimize the score for the player, so the score for g is the
-	 * <em>minimum</em> of all of the scores of the g'.
-	 * 
-	 * <p>You can think of the game as defining a tree, where each node in the tree
-	 * represents a game configuration, and the children of g are all of the g'
-	 * reachable from g by taking a turn.  The minimax algorithm is then a
-	 * particular traversal of this tree.
-	 * 
-	 * <p>In practice, game trees can become very large, so we apply a few
-	 * strategies to narrow the set of paths that we search.  First, we can decide
-	 * to only consider certain kinds of moves.  For five-in-a-row, there are
-	 * typically at least 70 moves available at each step; but it's (usually) not
-	 * sensible to go on the opposite side of the board from where all of the other
-	 * pieces are; by restricting our search to only part of the board, we can
-	 * reduce the space considerably.
-	 * 
-	 * <p>A second strategy is that we can look only a few moves ahead instead of
-	 * planning all the way to the end of the game.  This requires us to be able to
-	 * estimate how "good" a given board looks for a player.
-	 * 
-	 * <p>This class implements the minimax algorithm with support for these two
-	 * strategies for reducing the search space.  The abstract method {@link
-	 * #moves(Board)} is used to list all of the moves that the AI is willing to
-	 * consider, while the abstract method {@link #estimate(Board)} returns
-	 * the estimation of how good the board is for the given player.
-	 */
-	/**
-	 * A particular line of 5 adjacent cells is "winnable" for player p if
-	 * it does not contain any of the opponent's marks.
-	 * 
-	 * <p>We measure goodness by counting the number of winnable lines, and
-	 * scoring them based on the number of the player's marks as follows:
-	 * 
-	 * <table><tr><th> Number of marks </th> <th>  Score    </th></tr>
-	 *        <tr><td>     0           </td> <td>  0        </td></tr>
-	 *        <tr><td>     1           </td> <td>  1        </td></tr>
-	 *        <tr><td>     2           </td> <td>  10       </td></tr>
-	 *        <tr><td>     3           </td> <td>  100      </td></tr>
-	 *        <tr><td>     4           </td> <td>  1000     </td></tr>
-	 *        <tr><td>     5           </td> <td>  10000    </td></tr>
-	 * </table>
-	 *
-	 * <p>Note that overlapping segments will be counted multiple times, so
-	 * that, for example, the following board:
-	 * <pre> 
-	 *       O O
-	 *       OXO
-	 *       O O
-	 * </pre>
-	 * will count as 5 points for X, since there are 5 vertical line segments
-	 * passing through X, while
-	 * <pre>
-	 *       OOO
-	 *       OXO
-	 *       O O
-	 * </pre>
-	 * will only count for 1 point, since only the line segment proceeding down
-	 * from X is winnable.
-	 * 
-	 * The estimate is the difference between the player's score and his
-	 * opponent's
-	 */
-	
-	/*protected @Override Location nextMove(Game g) {		
-		Board current = g.getBoard();
-		Iterable<Location> iterableMoves = moves(current);
-		Iterator<Location> movesIter = iterableMoves.iterator();
-		
-		int scoreMaxSoFar = -99999999; //essentially negative infinity
-		Location optimalMove = null;
-		while(movesIter.hasNext()) {
-			//recursive call, and pass in movesIter.next();
-			Location nxt = movesIter.next();
-			int currentScore = moveScore(nxt, this.depth - 1, current, this.me);
-			//System.out.println("Loc: " + nxt + " sc: " + currentScore);
-			if(currentScore > scoreMaxSoFar) {
-				scoreMaxSoFar = currentScore;
-				optimalMove = nxt;
-			}
-		}
-		return optimalMove;
-	}*/
-	
+	 */	
 	protected @Override Location nextMove(Game g) {		
+		//delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
 		Board current = g.getBoard();
 		Iterable<Location> iterableMoves = moves(current);
 		Iterator<Location> movesIter = iterableMoves.iterator();
@@ -209,15 +123,17 @@ public abstract class MinMaxAI extends Controller {
 			if(depth == 0)
 				return estimate(withMove);
 
-			int yourScore = p.equals(this.me) ? -9999999 : +9999999;
+			int yourScore = p.equals(this.me) ? -99999999 : +99999999;
 			
 			
 			Iterable<Location> iterble = moves(withMove);
 			Iterator<Location> moveIter = iterble.iterator();
+		
 			
 			while(moveIter.hasNext()) {
-				int score = moveScore(moveIter.next(), depth - 1, withMove, p.opponent());
-				
+				Location nextMove = moveIter.next();
+				int score = moveScore(nextMove, depth - 1, withMove, p.opponent());
+				//System.out.println("next move location: " + nextMove + " score: " + score);
 				if(p.equals(me)) {
 					if(score >= yourScore) {
 						yourScore = score;
@@ -231,11 +147,16 @@ public abstract class MinMaxAI extends Controller {
 			return yourScore;
 		} catch(IllegalStateException e) {
 			if(p.equals(this.me)) {
-				return 9999999;
+				return 99999999;
 			} else {
-				return -9999999;
+				return -99999999;
 			}
+		} catch(IllegalArgumentException e) {
+			//board fills, so it is a draw
+			return 0;
 		}
+		
+		// 2, 3, win, but not a good playthrough
 	}
 		
 	/*private int moveScore(Location l, int depth, Board b, Player p) {
