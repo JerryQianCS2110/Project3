@@ -160,7 +160,7 @@ public abstract class MinMaxAI extends Controller {
 	 * opponent's
 	 */
 	
-	protected @Override Location nextMove(Game g) {		
+	/*protected @Override Location nextMove(Game g) {		
 		Board current = g.getBoard();
 		Iterable<Location> iterableMoves = moves(current);
 		Iterator<Location> movesIter = iterableMoves.iterator();
@@ -178,16 +178,74 @@ public abstract class MinMaxAI extends Controller {
 			}
 		}
 		return optimalMove;
+	}*/
+	
+	protected @Override Location nextMove(Game g) {		
+		Board current = g.getBoard();
+		Iterable<Location> iterableMoves = moves(current);
+		Iterator<Location> movesIter = iterableMoves.iterator();
+		
+		int scoreMaxSoFar = -99999999; //essentially negative infinity
+		Location optimalMove = null;
+		while(movesIter.hasNext()) {
+			//recursive call, and pass in movesIter.next();
+			Location nxt = movesIter.next();
+			int currentScore = moveScore(nxt, this.depth - 1, current, this.me.opponent());
+			//System.out.println("Loc: " + nxt + " sc: " + currentScore);
+			if(currentScore > scoreMaxSoFar) {
+				scoreMaxSoFar = currentScore;
+				optimalMove = nxt;
+			}
+		}
+		return optimalMove;
 	}
 	
+	
 	private int moveScore(Location l, int depth, Board b, Player p) {
+		try {
+			Board withMove = b.update(p.opponent(), l);
+			
+			//base case
+			if(depth == 0)
+				return estimate(withMove);
+
+			int yourScore = p.equals(this.me) ? -9999999 : +9999999;
+			
+			
+			Iterable<Location> iterble = moves(withMove);
+			Iterator<Location> moveIter = iterble.iterator();
+			
+			while(moveIter.hasNext()) {
+				int score = moveScore(moveIter.next(), depth - 1, withMove, p.opponent());
+				
+				if(p.equals(me)) {
+					if(score >= yourScore) {
+						yourScore = score;
+					}
+				} else {
+					if(score <= yourScore) {
+						yourScore = score; 
+					}
+				}
+			}
+			return yourScore;
+		} catch(IllegalStateException e) {
+			if(p.equals(this.me)) {
+				return 9999999;
+			} else {
+				return -9999999;
+			}
+		}
+	}
+		
+	/*private int moveScore(Location l, int depth, Board b, Player p) {
 		try {
 			Board withMove = b.update(p, l);
 			int yourScore = estimate(withMove);
 			
 			//base case
 			if(depth == 0)
-				return yourScore;
+				return estimate(withMove);
 			
 			
 			
@@ -199,12 +257,12 @@ public abstract class MinMaxAI extends Controller {
 				maxSoFar = moveScore(moveIter.next(), depth - 1, withMove, p.opponent());
 				
 				if(p.equals(me)) {
-					if(maxSoFar > yourScore) {
+					if(maxSoFar >= yourScore) {
 						yourScore = maxSoFar;
 					}
 				} else {
-					if(maxSoFar < yourScore) {
-						yourScore = maxSoFar;
+					if(maxSoFar <= yourScore) {
+						yourScore = maxSoFar; 
 					}
 				}
 			}
@@ -218,7 +276,7 @@ public abstract class MinMaxAI extends Controller {
 				return 9999999;
 			}
 		}
-	}
+	}*/
 
 	
 	
