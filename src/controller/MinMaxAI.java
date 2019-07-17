@@ -104,7 +104,7 @@ public abstract class MinMaxAI extends Controller {
 		while(movesIter.hasNext()) {
 			//recursive call, and pass in movesIter.next();
 			Location nxt = movesIter.next();
-			int currentScore = moveScore(nxt, this.depth - 1, current, this.me.opponent());
+			int currentScore = moveScore(this.depth - 1, current, this.me.opponent(), nxt);
 			//System.out.println("Loc: " + nxt + " sc: " + currentScore);
 			if(currentScore > scoreMaxSoFar) {
 				scoreMaxSoFar = currentScore;
@@ -114,8 +114,37 @@ public abstract class MinMaxAI extends Controller {
 		return optimalMove;
 	}
 	
+	//public copy of protected nextMove for testing purposes
+	public Location nextMoveForTest(Game g) {		
+		//delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay(); delay();
+		Board current = g.getBoard();
+		Iterable<Location> iterableMoves = moves(current);
+		Iterator<Location> movesIter = iterableMoves.iterator();
+		
+		int scoreMaxSoFar = -99999999; //essentially negative infinity
+		Location optimalMove = null;
+		while(movesIter.hasNext()) {
+			//recursive call, and pass in movesIter.next();
+			Location nxt = movesIter.next();
+			int currentScore = moveScore(this.depth - 1, current, this.me.opponent(), nxt);
+			//System.out.println("Loc: " + nxt + " sc: " + currentScore);
+			if(currentScore > scoreMaxSoFar) {
+				scoreMaxSoFar = currentScore;
+				optimalMove = nxt;
+			}
+		}
+		return optimalMove;
+	}
 	
-	private int moveScore(Location l, int depth, Board b, Player p) {
+	/**
+	 * Return the score of a certain move
+	 * @param l The location of the move
+	 * @param depth The number of "iterations" to look into the future
+	 * @param b The current board
+	 * @param p The player p
+	 * @return The score of a certain move
+	 */
+	private int moveScore(int depth, Board b, Player p, Location l) {
 		try {
 			Board withMove = b.update(p.opponent(), l);
 			
@@ -132,7 +161,7 @@ public abstract class MinMaxAI extends Controller {
 			
 			while(moveIter.hasNext()) {
 				Location nextMove = moveIter.next();
-				int score = moveScore(nextMove, depth - 1, withMove, p.opponent());
+				int score = moveScore(depth - 1, withMove, p.opponent(), nextMove);
 				//System.out.println("next move location: " + nextMove + " score: " + score);
 				if(p.equals(me)) {
 					if(score >= yourScore) {
