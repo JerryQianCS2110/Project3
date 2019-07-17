@@ -2,20 +2,29 @@ package controller.test;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import controller.MinMaxAI;
 import controller.SmartAI;
 import model.Board;
 import model.Location;
 import model.Player;
 import model.Game;
+import model.Line;
 import clui.BoardPrinter;
 
 public class MoreTests {
 
 	@Test
-	public void test() {
+	/**
+	 * Makes sure if opponet has 4 in a row, then the non-opponent
+	 * will counter that, by placing in the prospective 5th spot
+	 */
+	public void testPreventWin() {
 		SmartAI playerX = new SmartAI(Player.X);
 		
 		Game situation1 = new Game(Player.X);
@@ -34,5 +43,4 @@ public class MoreTests {
 		
 		assertEquals(true, xNextMove.equals(new Location(0, 4)));
 	}
-
 }
